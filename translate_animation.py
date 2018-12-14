@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -51,10 +52,22 @@ vs = np.array([vx,vy]).T
 
 
 def draw(i):
+    fn = sys.argv[1]
+
     v = vs[i % len(vs)]
     
     t = np.linspace(0,2*np.pi, 1025)
-    rs = np.arange(1, 10)*0.1
+
+
+    r1 = np.tanh(0.5)**2
+    ri = r1
+    rs = []
+    for i in range(10):
+        rs.append(ri)
+        # print(translate([r1,0], [ri, 0]))
+        ri = translate([r1,0], [ri, 0])[0]
+    rs = np.array(rs)
+    # print(rs)
     circ =  np.array([np.cos(t), np.sin(t)]).T
     circs =  rs[:,None,None] * circ[None,:,:]
 
@@ -69,6 +82,7 @@ def draw(i):
 
 
     plt.cla()
+    plt.plot(v[0], v[1], ".", color="red")
     circplot()
     for i in range(t_circs.shape[0]):
         plt.plot(t_circs[i,:,0], t_circs[i,:,1], "blue", lw=0.5)
@@ -78,11 +92,13 @@ def draw(i):
     plt.text(-1,0.9, "v = ({:0.2f},{:0.2f})".format(*v))
     
     
-fig = plt.figure(figsize=(5,5))
-ax = plt.axes(xlim=(-1,1), ylim=(-1,1))
-ax.set_aspect('equal')
-#draw(15)
+if __name__ == '__main__':
+    fig = plt.figure(figsize=(5,5))
+    ax = plt.axes(xlim=(-1,1), ylim=(-1,1))
+    ax.set_aspect('equal')
+    draw(0)
 
-anim = animation.FuncAnimation(fig, draw, interval=100, frames=len(vs), repeat=True)
+    anim = animation.FuncAnimation(fig, draw, interval=100, frames=len(vs), repeat=True)
 
-anim.save("ani.gif", writer="imagemagick")
+    # plt.show()
+    anim.save("{}.gif".format(fn), writer="imagemagick")
